@@ -1,12 +1,12 @@
-import discord
-import os
-import re
-import random
-import sqlite3
 import asyncio
-
-from dotenv import load_dotenv
+import os
+import random
+import re
+import sqlite3
 from os.path import dirname, join
+
+import discord
+from dotenv import load_dotenv
 
 dotenv_path = join(dirname(__file__), ".env")
 load_dotenv(dotenv_path)
@@ -44,25 +44,7 @@ async def on_message(message):
             await message.channel.send("successfully registered")
             con.commit()
 
-    if message.content.startswith("-pky"):
-        cur.execute("SELECT EXISTS(SELECT 1 FROM ramdev WHERE user_id=:user_id LIMIT 1)", {"user_id": user_id})
-
-        record = cur.fetchone()
-
-        if record[0]:
-
-            moni = cur.execute("select moni from ramdev where user_id =:user_id", {"user_id": user_id})
-            moni = cur.fetchone()
-
-            await message.channel.send(
-                f"{message.author.mention}, you have {moni[0]} pakistani yen(the greatest currency of all time allah hu akbar)"
-            )
-        else:
-            await message.channel.send(
-                "you are not registered for gambling in this karachi casino of hamood. to register, type '-reg'"
-            )
-
-    if message.content.startswith("-gg"):
+    elif message.content.startswith("-gg"):
         await message.channel.send("hm ok. lemme check")
 
         cur.execute("SELECT EXISTS(SELECT 1 FROM ramdev WHERE user_id=:user_id LIMIT 1)", {"user_id": user_id})
@@ -128,7 +110,26 @@ async def on_message(message):
             await message.channel.send(
                 "you are not registered for gambling in this karachi casino of hamood. to register, type '-reg'"
             )
-    if message.content.startswith("-moni"):
+
+    elif message.content.startswith("-pky"):
+        cur.execute("SELECT EXISTS(SELECT 1 FROM ramdev WHERE user_id=:user_id LIMIT 1)", {"user_id": user_id})
+
+        record = cur.fetchone()
+
+        if record[0]:
+
+            moni = cur.execute("select moni from ramdev where user_id =:user_id", {"user_id": user_id})
+            moni = cur.fetchone()
+
+            await message.channel.send(
+                f"{message.author.mention}, you have {moni[0]} pakistani yen(the greatest currency of all time allah hu akbar)"
+            )
+        else:
+            await message.channel.send(
+                "you are not registered for gambling in this karachi casino of hamood. to register, type '-reg'"
+            )
+
+    elif message.content.startswith("-moni"):
         cur.execute("SELECT EXISTS(SELECT 1 FROM ramdev WHERE user_id=:user_id LIMIT 1)", {"user_id": user_id})
         record = cur.fetchone()
         if record[0]:
