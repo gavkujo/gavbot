@@ -39,7 +39,7 @@ async def on_message(message):
         if record[0]:
             await message.channel.send("dude you are already registered.")
         else:
-            cur.execute("INSERT INTO ramdev VALUES (?, ?)", (user_id, 1000))
+            cur.execute("INSERT INTO ramdev VALUES (?, ?, ?)", (user_id, 1000, 0))
             print(f"New user registered. UserId: {user_id}")
             await message.channel.send("successfully registered")
             con.commit()
@@ -111,6 +111,61 @@ async def on_message(message):
                 "you are not registered for gambling in this karachi casino of hamood. to register, type '-reg'"
             )
 
+    elif message.content.startswith("-loan"):
+        cur.execute("SELECT EXISTS(SELECT 1 FROM ramdev WHERE user_id=:user_id LIMIT 1)", {"user_id": user_id})
+        record = cur.fetchone()
+        if record[0]:
+            loan_amount = int(re.sub("[^0-9]", "", message.content))
+            if loan_amount >= 694200:
+                await message.channel.send("ayo awkat ke bahar calm down")
+            else:
+                cur.execute(
+                    "UPDATE ramdev SET moni = moni+:loan, loan = loan+:loan WHERE user_id =:user_id",
+                    {"user_id": user_id, "loan": loan_amount},
+                )
+                con.commit()
+                print("added loan")
+                await message.channel.send(
+                    f"{message.author.mention}, you have loaned {loan_amount} from the iyesiyes bank."
+                )
+        else:
+            await message.channel.send(
+                "you are not registered for gambling in this karachi casino of hamood. to register, type '-reg'"
+            )
+
+    elif message.content.startswith("-repay"):
+        cur.execute("SELECT EXISTS(SELECT 1 FROM ramdev WHERE user_id=:user_id LIMIT 1)", {"user_id": user_id})
+        record = cur.fetchone()
+        if record[0]:
+            repay = int(re.sub("[^0-9]", "", message.content))
+            moni = cur.execute("select moni from ramdev where user_id =:user_id", {"user_id": user_id})
+            moni = cur.fetchone()
+            moni = moni[0]
+            loan = cur.execute("select loan from ramdev where user_id =:user_id", {"user_id": user_id})
+            loan = cur.fetchone()
+            loan = loan[0]
+            if loan <= 0:
+                await message.channel.send("you good bro")
+            else:
+                if repay > moni:
+                    await message.channel.send(f"{message.author.mention}, you dont have the money dude...")
+                else:
+                    if repay > loan:
+                        await message.channel.send(
+                            f"{message.author.mention}, dude type '-pky' to check the money that you have loaned and only pay that amount or less."
+                        )
+                    else:
+                        cur.execute(
+                            "update ramdev set moni = moni-:rep, loan = loan-:rep2 where user_id =:user_id",
+                            {"user_id": user_id, "rep": repay, "rep2": repay},
+                        )
+                        await message.channel.send(f"{message.author.mention}, {repay} pky repaid.")
+                        con.commit()
+        else:
+            await message.channel.send(
+                "you are not registered for gambling in this karachi casino of hamood. to register, type '-reg'"
+            )
+
     elif message.content.startswith("-pky"):
         cur.execute("SELECT EXISTS(SELECT 1 FROM ramdev WHERE user_id=:user_id LIMIT 1)", {"user_id": user_id})
 
@@ -120,31 +175,12 @@ async def on_message(message):
 
             moni = cur.execute("select moni from ramdev where user_id =:user_id", {"user_id": user_id})
             moni = cur.fetchone()
+            loan = cur.execute("select loan from ramdev where user_id =:user_id", {"user_id": user_id})
+            loan = cur.fetchone()
 
             await message.channel.send(
-                f"{message.author.mention}, you have {moni[0]} pakistani yen(the greatest currency of all time allah hu akbar)"
+                f"{message.author.mention}, you have {moni[0]} pakistani yen(the greatest currency of all time allah hu akbar). (and you owe {loan[0]} to iyesiyes bank (protip: dont commit fraud))"
             )
-        else:
-            await message.channel.send(
-                "you are not registered for gambling in this karachi casino of hamood. to register, type '-reg'"
-            )
-
-    elif message.content.startswith("-moni"):
-        cur.execute("SELECT EXISTS(SELECT 1 FROM ramdev WHERE user_id=:user_id LIMIT 1)", {"user_id": user_id})
-        record = cur.fetchone()
-        if record[0]:
-            moni = cur.execute("select moni from ramdev where user_id =:user_id", {"user_id": user_id})
-
-            moni = cur.fetchone()[0]
-
-            if moni > 2000:
-                await message.channel.send("dude you have enough money")
-
-            else:
-                cur.execute("update ramdev set moni = 2000 where user_id =:user_id", {"user_id": user_id})
-
-                con.commit()
-                await message.channel.send(f"{message.author.mention}, you have 2000 pky.")
         else:
             await message.channel.send(
                 "you are not registered for gambling in this karachi casino of hamood. to register, type '-reg'"
