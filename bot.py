@@ -110,13 +110,13 @@ async def on_message(message):
                             {"user_id": user_id, "bet": bet_amount * 3},
                         )
                         con.commit()
+            else:
+                await message.channel.send(
+                    "you are not registered for gambling in this karachi casino of hamood. to register, type '-reg'"
+                )
+
         except:
             await message.channel.send("type a number, dude")
-
-        else:
-            await message.channel.send(
-                "you are not registered for gambling in this karachi casino of hamood. to register, type '-reg'"
-            )
 
     elif message.content.startswith("-loan"):
         try:
@@ -206,4 +206,6 @@ async def on_message(message):
             )
 
 
-client.run(os.getenv("token"))
+# First one for replit only: comment either one out depending on whether it is being run locally or on replit.
+# client.run(os.getenv("token"))
+client.run(DISCORD_TOKEN)
